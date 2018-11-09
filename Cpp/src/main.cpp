@@ -12,6 +12,7 @@
 #include <string>
 #include <chrono>
 #include "GripPipeline.h"
+#include <vector>
 
 cs::VideoCamera SetHttpCamera(llvm::StringRef cameraName, cs::MjpegServer& server);
 
@@ -83,6 +84,9 @@ int main() {
   // as they are expensive to create
   cv::Mat inputImage;
   cv::Mat hsv;
+  GripPipeline pipeline();
+  std::vector<std::vector<cv::Point>> contour;
+  GripPipeline pipeline();
 
   // Infinitely process image
   while (true) {
@@ -93,12 +97,21 @@ int main() {
 
     // Below is where you would do your OpenCV operations on the provided image
     // The sample below just changes color source to HSV
-    cvtColor(inputImage, hsv, cv::COLOR_BGR2HSV);
+    pipeline::process(inputImage);
+    contours = pipeline::filterContoursOutput();
+    std::vector<cv::Point> contour = contours[0];
+    cv:: Rect br = boundingRect(contour);
+    int cx = br.x+br.width/2; 
+    int cy = br.y+br.height/2;
+    table::putNumber("centerX", cx);
+    table::putNumber("centerY", cy);
+    
+    
 
     // Here is where you would write a processed image that you want to restreams
     // This will most likely be a marked up image of what the camera sees
     // For now, we are just going to stream the HSV image
-    imageSource.PutFrame(hsv);
+    imageSource.PutFrame(pipeline::GetHsvThresholdOutput());
   }
 }
 
