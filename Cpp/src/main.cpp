@@ -11,6 +11,7 @@
 #include <thread>
 #include <string>
 #include <chrono>
+#include "GripPipeline.h"
 
 cs::VideoCamera SetHttpCamera(llvm::StringRef cameraName, cs::MjpegServer& server);
 
@@ -20,9 +21,10 @@ int main() {
   // Connect NetworkTables, and get access to the publishing table
   NetworkTable::SetClientMode();
   // Set your team number here
-  NetworkTable::SetTeam(9999);
+  NetworkTable::SetTeam(5024);
 
   NetworkTable::Initialize();
+  NetworkTable *table = NetworkTable::getTable("vision");
 
   // This is the network port you want to stream the raw received image to
   // By rules, this has to be between 1180 and 1190, so 1185 is a good choice
@@ -38,7 +40,7 @@ int main() {
   // the input image so other devices can see it.
 
   // HTTP Camera
-  /*
+  
   // This is our camera name from the robot. this can be set in your robot code with the following command
   // CameraServer.getInstance().startAutomaticCapture("YourCameraNameHere");
   // "USB Camera 0" is the default if no string is specified
@@ -50,7 +52,7 @@ int main() {
     camera = cs::HttpCamera{"CoprocessorCamera", "YourURLHere"};
     inputStream.SetSource(camera);
   }
-  */
+  
   
 
 
