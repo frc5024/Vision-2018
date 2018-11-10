@@ -25,11 +25,11 @@ int main() {
   NetworkTable::SetTeam(5024);
 
   NetworkTable::Initialize();
-  NetworkTable *table = NetworkTable::getTable("vision");
+  NetworkTable *table = NetworkTable::getTable("SmartDashboard");
 
   // This is the network port you want to stream the raw received image to
   // By rules, this has to be between 1180 and 1190, so 1185 is a good choice
-  int streamPort = 1185;
+  int streamPort = 1181;
 
   // This stores our reference to our mjpeg server for streaming the input image
   cs::MjpegServer inputStream("MJPEG Server", streamPort);
@@ -50,7 +50,7 @@ int main() {
   // It is possible for the camera to be null. If it is, that means no camera could
   // be found using NetworkTables to connect to. Create an HttpCamera by giving a specified stream
   if (!camera) {
-    camera = cs::HttpCamera{"CoprocessorCamera", "YourURLHere"};
+    camera = cs::HttpCamera{"CoprocessorCamera", "http://10.50.24.2"};
     inputStream.SetSource(camera);
   }
   
