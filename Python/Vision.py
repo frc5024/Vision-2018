@@ -8,8 +8,12 @@ import grip
 
 
 CameraWidth = 640
+CameraHeight = 320
 FieldOfView = 60
 DegPerPixel = FieldOfView/CameraWidth
+FocalLength = (CameraWidth/2)/ (math.tan(FieldOfView/2*(math.pi/180)))
+Displacement = 30 # this is the verticall distance between camera and cube, need to be measured.
+
 
 #initialize table
 NetworkTables.initialize(server='10.50.24.2')
@@ -29,14 +33,16 @@ while True:
     (xg,yg,wg,hg) = cv2.boundingRect(box)
     CubeData = [xg, yg, wg, hg]
     CenterOfCube = xg + (wg/2)
-    #what is deg per pixel in our own setup?
+    CenterOfCubeVert = yg + (hg/2)
     ImageSizeInDeg = CenterOfCube * DegPerPixel
+    PixelsToCube = CenterOfCube - CameraWidth/2
+    PixelsToCubeVert = CenterOfCubeVert - cameraHeight/2
 
-    DistanceToCube = ((13/math.tan(math.radians(ImageSizeInDeg))))
-
-    PixelsToCube = CenterOfCube - 300
-    #also this
-    AngleToCube = ((CenterOfCube - (CameraWidth/2)) * DegPerPixel)
+    #AngleToCube = ((CenterOfCube - (CameraWidth/2)) * DegPerPixel)
+    #more accurate angle:
+    AngleToCube = (math.atan(PixelsToCube/FocalLength))*(180/math.pi)
+    AngleToCubeVert = (math.atan(PixelsToCubeVert/FocalLength))
+    DistanceToCube = Displacement / math.tan(AngleToCubeVert)
 
     #send data to table
     Table.putNumber("DistanceToCube", DistanceToCube)
@@ -45,4 +51,3 @@ while True:
     Table.putNumber("CenterOfCube", CenterOfCube)
     Table.putNumber("AngleToCube", AngleToCube)
     Table.putBoolean("ContoursFound", True)
-    
