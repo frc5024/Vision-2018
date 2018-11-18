@@ -50,4 +50,3 @@ while True:
     Table.putNumberArray("X, Y, W, H", CubeData)
     Table.putNumber("CenterOfCube", CenterOfCube)
     Table.putNumber("AngleToCube", AngleToCube)
-    Table.putBoolean("ContoursFound", True)
