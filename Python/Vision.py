@@ -6,6 +6,7 @@ import math
 from networktables import NetworkTables
 import grip
 import urllib
+import time
 
 
 CameraWidth = 640
@@ -14,7 +15,7 @@ FieldOfView = 60
 DegPerPixel = FieldOfView/CameraWidth
 FocalLength = (CameraWidth/2)/ (math.tan(FieldOfView/2*(math.pi/180)))
 Displacement = 19 # this is the verticall distance between camera and cube, need to be measured.
-
+feed = cv2.VideoCapture(0)
 
 #initialize table
 NetworkTables.initialize(server='10.50.24.2')
@@ -25,13 +26,17 @@ pipeline = grip.GripPipeline()
 
 
 while True:
-    with urllib.request.urlopen("http://10.50.24.175:8088/getframe.php?teamstring=50.24") as url:
-        frame = url.read()
-    frame = np.array(bytearray(frame), dtype=np.uint8)
-    frame = cv2.imdecode(frame, -1)
+    _,frame= feed.read()
+    key= cv2.waitKey(20)
+    # frame = np.array(bytearray(frame), dtype=np.uint8)
+    # frame = cv2.imdecode(frame, -1)
+    
     pipeline.process(frame)
+    
     contours = pipeline.convex_hulls_output
     #if there are multiple contours, the one with max area is the box
+    if contours == []:
+        continue
     box=max(contours, key=cv2.contourArea)
     (xg,yg,wg,hg) = cv2.boundingRect(box)
     CubeData = [xg, yg, wg, hg]
