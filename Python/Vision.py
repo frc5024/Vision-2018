@@ -8,6 +8,12 @@ import grip
 import urllib
 import time
 
+import argparse
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--netcam", help="Use the camera over CScore server")
+args = parser.parse_args()
+
 
 CameraWidth = 640
 CameraHeight = 480
@@ -15,7 +21,15 @@ FieldOfView = 60
 DegPerPixel = FieldOfView/CameraWidth
 FocalLength = (CameraWidth/2)/ (math.tan(FieldOfView/2*(math.pi/180)))
 Displacement = 19 # this is the verticall distance between camera and cube, need to be measured.
-feed = cv2.VideoCapture(0)
+if not args.netcam:
+    feed = cv2.VideoCapture(0)
+else:
+	try:
+		stream = urllib.request.urlopen("http://roborio-5024-frc.local:1184/stream.mjpg")
+	except:
+		print("Could not open stream!")
+		exit(1)
+	bytes = ''
 speedLimit = 100
 MinDistance = 30
 
@@ -28,10 +42,22 @@ pipeline = grip.GripPipeline()
 
 print("Camera Data:")
 while True:
-    _,frame= feed.read()
-    key= cv2.waitKey(20)
-    # frame = np.array(bytearray(frame), dtype=np.uint8)
-    # frame = cv2.imdecode(frame, -1)
+    if not args.netcam:
+        _,frame= feed.read()
+        key= cv2.waitKey(20)
+    else:
+        bytes += stream.read(1024)
+        a = bytes.find('\xff\xd8')
+        b = bytes.find('\xff\xd9')
+        if a != -1 and b != -1:
+            jpg   = bytes[a:b+2]
+            bytes = bytes[b+2:]
+            frame = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.CV_LOAD_IMAGE_COLOR)
+        else:
+        	print("Improper data fron netcam", end="\r")
+        	continue
+        # frame = np.array(bytearray(frame), dtype=np.uint8)
+        # frame = cv2.imdecode(frame, -1)
     
     cv2.imshow("RAW",frame)
     
